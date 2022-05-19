@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es6",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "module": "commonjs",

@@ -19,10 +19,6 @@ const customers: RealStripe.Customer[] = [];
 
 const charges: Record<string, RealStripe.Charge[]> = {};
 
-export function debug_getInternalDataStructure() {
-  return { customers, charges };
-}
-
 function findCharge(id: string) {
   return Object.values(charges)
     .flat()
@@ -295,4 +291,4 @@ class Stripe {
   }
 }
 
-export default Stripe;
+export = Stripe;
