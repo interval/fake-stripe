@@ -1,9 +1,16 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.debug_getInternalDataStructure = void 0;
 const faker_1 = __importDefault(require("@faker-js/faker"));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function simulateNetworkLatency() {
@@ -17,10 +24,6 @@ function toStripeUnixTs(d) {
 }
 const customers = [];
 const charges = {};
-function debug_getInternalDataStructure() {
-    return { customers, charges };
-}
-exports.debug_getInternalDataStructure = debug_getInternalDataStructure;
 function findCharge(id) {
     return Object.values(charges)
         .flat()
@@ -179,36 +182,35 @@ function findOrCreateCustomer(email) {
     return c;
 }
 class Stripe {
-    customers;
-    charges;
-    refunds;
     constructor(apiKey, config) {
         this.customers = {
-            async list(params) {
-                await simulateNetworkLatency();
-                const limit = params.limit || 10;
-                return {
-                    has_more: false,
-                    data: Array.from(Array(limit)).map((_, i) => findOrCreateCustomer(i === 0 ? params.email : undefined)),
-                    object: "list",
-                    url: "",
-                };
+            list(params) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    yield simulateNetworkLatency();
+                    const limit = params.limit || 10;
+                    return {
+                        has_more: false,
+                        data: Array.from(Array(limit)).map((_, i) => findOrCreateCustomer(i === 0 ? params.email : undefined)),
+                        object: "list",
+                        url: "",
+                    };
+                });
             },
         };
         this.charges = {
-            list: async (params) => {
-                await simulateNetworkLatency();
+            list: (params) => __awaiter(this, void 0, void 0, function* () {
+                yield simulateNetworkLatency();
                 return {
                     has_more: false,
                     data: findOrCreateChargesForCustomer(params.customer),
                     object: "list",
                     url: "",
                 };
-            },
+            }),
         };
         this.refunds = {
-            create: async (params) => {
-                await simulateNetworkLatency();
+            create: (params) => __awaiter(this, void 0, void 0, function* () {
+                yield simulateNetworkLatency();
                 if (!params.charge) {
                     throw new Error(`The fake Stripe client requires a Charge id for this request`);
                 }
@@ -244,9 +246,9 @@ class Stripe {
                     charges[customerId][chargeIdx].amount_refunded = refund.amount;
                     charges[customerId][chargeIdx].refunded = true;
                 }
-                return { ...refund, lastResponse: null };
-            },
+                return Object.assign(Object.assign({}, refund), { lastResponse: null });
+            }),
         };
     }
 }
-exports.default = Stripe;
+module.exports = Stripe;
