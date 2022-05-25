@@ -9,6 +9,6 @@ declare class Stripe {
     refunds: {
         create: (params: RealStripe.RefundCreateParams) => Promise<RealStripe.Response<RealStripe.Refund>>;
     };
-    constructor(apiKey: string, config: RealStripe.StripeConfig);
+    constructor(apiKey: string | undefined, config: RealStripe.StripeConfig);
 }
 export = Stripe;

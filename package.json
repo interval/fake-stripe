@@ -1,6 +1,6 @@
 {
   "name": "@interval/fake-stripe",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A mock Stripe SDK for use in Interval tutorials",
   "main": "dist/index.js",
   "repository": "https://github.com/interval/fake-stripe.git",
