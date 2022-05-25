@@ -203,7 +203,7 @@ class Stripe {
       params: RealStripe.RefundCreateParams
     ) => Promise<RealStripe.Response<RealStripe.Refund>>;
   };
-  constructor(apiKey: string, config: RealStripe.StripeConfig) {
+  constructor(apiKey: string | undefined, config: RealStripe.StripeConfig) {
     this.customers = {
       async list(params) {
         await simulateNetworkLatency();
