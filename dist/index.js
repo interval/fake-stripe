@@ -24,6 +24,7 @@ function toStripeUnixTs(d) {
 }
 const customers = [];
 const charges = {};
+const refunds = [];
 function findCharge(id) {
     return Object.values(charges)
         .flat()
@@ -246,7 +247,17 @@ class Stripe {
                     charges[customerId][chargeIdx].amount_refunded = refund.amount;
                     charges[customerId][chargeIdx].refunded = true;
                 }
+                refunds.push(refund);
                 return Object.assign(Object.assign({}, refund), { lastResponse: null });
+            }),
+            list: (params) => __awaiter(this, void 0, void 0, function* () {
+                yield simulateNetworkLatency();
+                return {
+                    has_more: false,
+                    data: refunds,
+                    object: "list",
+                    url: "",
+                };
             }),
         };
     }

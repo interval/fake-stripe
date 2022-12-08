@@ -18,6 +18,7 @@ function toStripeUnixTs(d: Date) {
 const customers: RealStripe.Customer[] = [];
 
 const charges: Record<string, RealStripe.Charge[]> = {};
+const refunds: RealStripe.Refund[] = [];
 
 function findCharge(id: string) {
   return Object.values(charges)
@@ -202,6 +203,9 @@ class Stripe {
     create: (
       params: RealStripe.RefundCreateParams
     ) => Promise<RealStripe.Response<RealStripe.Refund>>;
+    list: (
+      params: RealStripe.RefundListParams
+    ) => Promise<RealStripe.ApiList<RealStripe.Refund>>;
   };
   constructor(apiKey: string | undefined, config: RealStripe.StripeConfig) {
     this.customers = {
@@ -285,7 +289,18 @@ class Stripe {
           charges[customerId][chargeIdx].refunded = true;
         }
 
+        refunds.push(refund);
+
         return { ...refund, lastResponse: null };
+      },
+      list: async (params) => {
+        await simulateNetworkLatency();
+        return {
+          has_more: false,
+          data: refunds,
+          object: "list",
+          url: "",
+        };
       },
     };
   }
