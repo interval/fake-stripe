@@ -24,10 +24,14 @@ function toStripeUnixTs(d) {
 }
 const customers = [];
 const charges = {};
+const refunds = [];
 function findCharge(id) {
     return Object.values(charges)
         .flat()
         .find((ch) => ch.id === id);
+}
+function generateUrl() {
+    return `https://example.com/${faker_1.default.internet.domainWord()}`;
 }
 function createCharge(customerId) {
     let amtCents = faker_1.default.datatype.number({ min: 100, max: 10000 });
@@ -110,13 +114,13 @@ function createCharge(customerId) {
         },
         receipt_email: null,
         receipt_number: null,
-        receipt_url: "",
+        receipt_url: generateUrl(),
         refunded: false,
         refunds: {
             object: "list",
             data: [],
             has_more: false,
-            url: `/v1/charges/${id}/refunds`,
+            url: `${generateUrl()}/v1/charges/${id}/refunds`,
         },
         review: null,
         shipping: null,
@@ -192,7 +196,7 @@ class Stripe {
                         has_more: false,
                         data: Array.from(Array(limit)).map((_, i) => findOrCreateCustomer(i === 0 ? params.email : undefined)),
                         object: "list",
-                        url: "",
+                        url: generateUrl(),
                     };
                 });
             },
@@ -204,7 +208,7 @@ class Stripe {
                     has_more: false,
                     data: findOrCreateChargesForCustomer(params.customer),
                     object: "list",
-                    url: "",
+                    url: generateUrl(),
                 };
             }),
         };
@@ -246,7 +250,17 @@ class Stripe {
                     charges[customerId][chargeIdx].amount_refunded = refund.amount;
                     charges[customerId][chargeIdx].refunded = true;
                 }
+                refunds.push(refund);
                 return Object.assign(Object.assign({}, refund), { lastResponse: null });
+            }),
+            list: (params) => __awaiter(this, void 0, void 0, function* () {
+                yield simulateNetworkLatency();
+                return {
+                    has_more: false,
+                    data: refunds,
+                    object: "list",
+                    url: generateUrl(),
+                };
             }),
         };
     }

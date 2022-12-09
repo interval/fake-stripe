@@ -18,11 +18,16 @@ function toStripeUnixTs(d: Date) {
 const customers: RealStripe.Customer[] = [];
 
 const charges: Record<string, RealStripe.Charge[]> = {};
+const refunds: RealStripe.Refund[] = [];
 
 function findCharge(id: string) {
   return Object.values(charges)
     .flat()
     .find((ch) => ch.id === id);
+}
+
+function generateUrl() {
+  return `https://example.com/${faker.internet.domainWord()}`
 }
 
 function createCharge(customerId: string): RealStripe.Charge {
@@ -108,13 +113,13 @@ function createCharge(customerId: string): RealStripe.Charge {
     },
     receipt_email: null,
     receipt_number: null,
-    receipt_url: "",
+    receipt_url: generateUrl(),
     refunded: false,
     refunds: {
       object: "list",
       data: [],
       has_more: false,
-      url: `/v1/charges/${id}/refunds`,
+      url: `${generateUrl()}/v1/charges/${id}/refunds`,
     },
     review: null,
     shipping: null,
@@ -187,7 +192,11 @@ function findOrCreateCustomer(email?: string) {
   return c;
 }
 
-class Stripe {
+type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
+class Stripe implements DeepPartial<RealStripe> {
   customers: {
     list: (
       params: RealStripe.CustomerListParams
@@ -202,6 +211,9 @@ class Stripe {
     create: (
       params: RealStripe.RefundCreateParams
     ) => Promise<RealStripe.Response<RealStripe.Refund>>;
+    list: (
+      params: RealStripe.RefundListParams
+    ) => Promise<RealStripe.ApiList<RealStripe.Refund>>;
   };
   constructor(apiKey: string | undefined, config: RealStripe.StripeConfig) {
     this.customers = {
@@ -215,7 +227,7 @@ class Stripe {
             findOrCreateCustomer(i === 0 ? params.email : undefined)
           ),
           object: "list",
-          url: "",
+          url: generateUrl(),
         };
       },
     };
@@ -227,7 +239,7 @@ class Stripe {
           has_more: false,
           data: findOrCreateChargesForCustomer(params.customer),
           object: "list",
-          url: "",
+          url: generateUrl(),
         };
       },
     };
@@ -285,7 +297,18 @@ class Stripe {
           charges[customerId][chargeIdx].refunded = true;
         }
 
+        refunds.push(refund);
+
         return { ...refund, lastResponse: null };
+      },
+      list: async (params) => {
+        await simulateNetworkLatency();
+        return {
+          has_more: false,
+          data: refunds,
+          object: "list",
+          url: generateUrl(),
+        };
       },
     };
   }
