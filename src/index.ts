@@ -26,6 +26,10 @@ function findCharge(id: string) {
     .find((ch) => ch.id === id);
 }
 
+function generateUrl() {
+  return `https://example.com/${faker.internet.domainWord()}`
+}
+
 function createCharge(customerId: string): RealStripe.Charge {
   let amtCents = faker.datatype.number({ min: 100, max: 10000 });
   let isRefunded = faker.datatype.boolean();
@@ -109,13 +113,13 @@ function createCharge(customerId: string): RealStripe.Charge {
     },
     receipt_email: null,
     receipt_number: null,
-    receipt_url: "",
+    receipt_url: generateUrl(),
     refunded: false,
     refunds: {
       object: "list",
       data: [],
       has_more: false,
-      url: `/v1/charges/${id}/refunds`,
+      url: `${generateUrl()}/v1/charges/${id}/refunds`,
     },
     review: null,
     shipping: null,
@@ -223,7 +227,7 @@ class Stripe implements DeepPartial<RealStripe> {
             findOrCreateCustomer(i === 0 ? params.email : undefined)
           ),
           object: "list",
-          url: "",
+          url: generateUrl(),
         };
       },
     };
@@ -235,7 +239,7 @@ class Stripe implements DeepPartial<RealStripe> {
           has_more: false,
           data: findOrCreateChargesForCustomer(params.customer),
           object: "list",
-          url: "",
+          url: generateUrl(),
         };
       },
     };
@@ -303,7 +307,7 @@ class Stripe implements DeepPartial<RealStripe> {
           has_more: false,
           data: refunds,
           object: "list",
-          url: "",
+          url: generateUrl(),
         };
       },
     };

@@ -30,6 +30,9 @@ function findCharge(id) {
         .flat()
         .find((ch) => ch.id === id);
 }
+function generateUrl() {
+    return `https://example.com/${faker_1.default.internet.domainWord()}`;
+}
 function createCharge(customerId) {
     let amtCents = faker_1.default.datatype.number({ min: 100, max: 10000 });
     let isRefunded = faker_1.default.datatype.boolean();
@@ -111,13 +114,13 @@ function createCharge(customerId) {
         },
         receipt_email: null,
         receipt_number: null,
-        receipt_url: "",
+        receipt_url: generateUrl(),
         refunded: false,
         refunds: {
             object: "list",
             data: [],
             has_more: false,
-            url: `/v1/charges/${id}/refunds`,
+            url: `${generateUrl()}/v1/charges/${id}/refunds`,
         },
         review: null,
         shipping: null,
@@ -193,7 +196,7 @@ class Stripe {
                         has_more: false,
                         data: Array.from(Array(limit)).map((_, i) => findOrCreateCustomer(i === 0 ? params.email : undefined)),
                         object: "list",
-                        url: "",
+                        url: generateUrl(),
                     };
                 });
             },
@@ -205,7 +208,7 @@ class Stripe {
                     has_more: false,
                     data: findOrCreateChargesForCustomer(params.customer),
                     object: "list",
-                    url: "",
+                    url: generateUrl(),
                 };
             }),
         };
@@ -256,7 +259,7 @@ class Stripe {
                     has_more: false,
                     data: refunds,
                     object: "list",
-                    url: "",
+                    url: generateUrl(),
                 };
             }),
         };
