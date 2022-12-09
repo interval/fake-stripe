@@ -188,7 +188,11 @@ function findOrCreateCustomer(email?: string) {
   return c;
 }
 
-class Stripe {
+type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
+class Stripe implements DeepPartial<RealStripe> {
   customers: {
     list: (
       params: RealStripe.CustomerListParams

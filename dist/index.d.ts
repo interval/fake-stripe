@@ -1,5 +1,8 @@
 import { Stripe as RealStripe } from "stripe";
-declare class Stripe {
+declare type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+declare class Stripe implements DeepPartial<RealStripe> {
     customers: {
         list: (params: RealStripe.CustomerListParams) => Promise<RealStripe.ApiList<RealStripe.Customer>>;
     };
